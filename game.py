@@ -1,18 +1,19 @@
-import datetime
-import os
-import random
 import time
-from random import randint
-
 import pgzrun
-from pgzero.actor import Actor
 from pgzhelper import *
 
+startMenu = True
 win = False
 caught = False
+lastupdate = float(time.time())
 
 WIDTH = 600
 HEIGHT = 600
+
+startButton = Actor('gemred')
+startButton.x = WIDTH / 2
+startButton.y = HEIGHT / 2
+startButton.scale = 2
 
 background = Actor('background')
 background.x = WIDTH / 2
@@ -31,16 +32,14 @@ gerrit.scale = 5
 walkstage = 0
 walkinglane = 0
 
-lastupdate = float(time.time())
-
-
 score = 0
 goal = 50
 
-# def on_mouse_move(pos, rel, buttons):
-#
-# def on_mouse_down(pos, button):
-#
+def on_mouse_down(pos, button):
+    global startMenu, startButton
+    if startButton.collidepoint(pos) and startMenu:
+        startMenu = False
+
 holdingLeft = False
 holdingRight = False
 
@@ -74,8 +73,10 @@ def update():
     if not lastupdate > float(time.time()) - 0.05:
         background.y += 5
         background1.y += 5
-        # if background.y == HEIGHT:
-        #     background.y = HEIGHT / 2 - HEIGHT
+        if background.y == HEIGHT + HEIGHT / 2:
+            background.y = HEIGHT / 2 - HEIGHT
+        if background1.y == HEIGHT + HEIGHT / 2:
+            background1.y = HEIGHT / 2 - HEIGHT
         if not walkstage == 8:
             gerrit.image = 'walk' + walkstage.__str__()
             gerrit.scale = 5
@@ -97,10 +98,21 @@ def update():
 
 def draw():
     global score, goal, caught, win
+
     background.draw()
     background1.draw()
 
-    if win:
+    if startMenu:
+        screen.fill((103, 190, 217))
+        screen.draw.text(
+            'Welcome!',
+            (210, 200),
+            color=(255, 255, 255),
+            fontsize=60
+        )
+        startButton.draw()
+
+    elif win:
         screen.draw.text(
             'Gewonnen!',
             (450, 200),
