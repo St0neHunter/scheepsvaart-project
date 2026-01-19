@@ -1,11 +1,12 @@
 import time
 import pgzrun
+# from pgzero.game import screen
 from pgzhelper import *
 
 startMenu = True
 win = False
 caught = False
-lastupdate = float(time.time())
+lastUpdate = float(time.time())
 
 WIDTH = 600
 HEIGHT = 600
@@ -29,8 +30,9 @@ gerrit = Actor('standing')
 gerrit.x = 400
 gerrit.y = 550
 gerrit.scale = 5
-walkstage = 0
-walkinglane = 0
+walkStage = 0
+walkingLane = 0
+hurtTime = 0
 
 score = 0
 goal = 50
@@ -44,17 +46,20 @@ holdingLeft = False
 holdingRight = False
 
 def update():
-    global gerrit, walkstage, lastupdate, score, walkinglane, holdingLeft, holdingRight
+    global gerrit, walkStage, lastUpdate, score, walkingLane, holdingLeft, holdingRight, hurtTime
 
-    ### start of keyboard crap ###
+    ### start of keyboard handling ###
     if keyboard.left:
         if not holdingLeft:
             holdingLeft = True
             holdingRight = False
-            if walkinglane == 0:
-                score -= 5
+            if walkingLane == 0:
+                score -= 2
+                gerrit.image = 'hurt'
+                gerrit.scale = 5
+                hurtTime = 1
             else:
-                walkinglane -= 1
+                walkingLane -= 1
     elif holdingLeft: # keyboard.left == false
         holdingLeft = False
 
@@ -62,38 +67,49 @@ def update():
         if not holdingRight:
             holdingRight = True
             holdingLeft = False
-            if walkinglane == 2:
-                score -= 5
+            if walkingLane == 2:
+                score -= 2
+                gerrit.image = 'hurt'
+                gerrit.scale = 5
+                hurtTime = 1
             else:
-                walkinglane += 1
+                walkingLane += 1
     elif holdingRight: # keyboard.right == false
         holdingRight = False
-    ### end of keyboard crap ###
+    ### end of keyboard handling ###
 
-    if not lastupdate > float(time.time()) - 0.05:
-        background.y += 5
-        background1.y += 5
-        if background.y == HEIGHT + HEIGHT / 2:
-            background.y = HEIGHT / 2 - HEIGHT
-        if background1.y == HEIGHT + HEIGHT / 2:
-            background1.y = HEIGHT / 2 - HEIGHT
-        if not walkstage == 8:
-            gerrit.image = 'walk' + walkstage.__str__()
-            gerrit.scale = 5
-            walkstage += 1
+
+    background.y += 4
+    background1.y += 4
+    if background.y == HEIGHT + HEIGHT / 2:
+        background.y = HEIGHT / 2 - HEIGHT
+    if background1.y == HEIGHT + HEIGHT / 2:
+        background1.y = HEIGHT / 2 - HEIGHT
+
+
+    if not lastUpdate > float(time.time()) - 0.05: # update gerrit less frequent
+        if hurtTime == 3:
+            hurtTime = 0
+        elif hurtTime > 0:
+            hurtTime += 1
         else:
-            gerrit.image = 'walk0'
-            gerrit.scale = 5
-            walkstage = 1
+            if not walkStage == 8:
+                gerrit.image = 'walk' + walkStage.__str__()
+                gerrit.scale = 5
+                walkStage += 1
+            else:
+                gerrit.image = 'walk0'
+                gerrit.scale = 5
+                walkStage = 1
 
-        if walkinglane == 0:
-            gerrit.x = 170
-        elif walkinglane == 1:
-            gerrit.x = 300
-        elif walkinglane == 2:
-            gerrit.x = 430
+            if walkingLane == 0:
+                gerrit.x = 170
+            elif walkingLane == 1:
+                gerrit.x = 300
+            elif walkingLane == 2:
+                gerrit.x = 430
 
-        lastupdate = time.time()
+        lastUpdate = time.time()
 
 
 def draw():
@@ -106,11 +122,28 @@ def draw():
         screen.fill((103, 190, 217))
         screen.draw.text(
             'Welcome!',
-            (210, 200),
+            (210, 190),
             color=(255, 255, 255),
             fontsize=60
         )
+        screen.draw.text(
+            'In this game you play as Gerrit, a crewmate.\n'
+            'To survive he needs to eat but that\'s not easy',
+            (100, 230),
+            color=(255, 255, 255),
+            fontsize=30
+        )
         startButton.draw()
+
+        screen.draw.text(
+            'Controls\n'
+            ' - Move left     <\n'
+            ' - Move right   >\n'
+            ' - Jump           ^',
+            (10, 10),
+            color=(255, 255, 255),
+            fontsize=30
+        )
 
     elif win:
         screen.draw.text(
