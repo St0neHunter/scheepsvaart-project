@@ -1,7 +1,9 @@
+import random
 import time
 import pgzrun
-# from pgzero.game import screen
 from pgzhelper import *
+import secrets
+import numpy.random as rnd
 
 startMenu = True
 win = False
@@ -37,6 +39,16 @@ hurtTime = 0
 score = 0
 goal = 50
 
+walkingLane1pos = 170
+walkingLane2pos = 300
+walkingLane3pos = 430
+
+dummyprop = Actor("chicken")
+dummyprop.x = -100
+props = [dummyprop]
+
+random.seed(time.time())
+
 def on_mouse_down(pos, button):
     global startMenu, startButton
     if startButton.collidepoint(pos) and startMenu:
@@ -47,6 +59,9 @@ holdingRight = False
 
 def update():
     global gerrit, walkStage, lastUpdate, score, walkingLane, holdingLeft, holdingRight, hurtTime
+
+    if startMenu:
+        return
 
     ### start of keyboard handling ###
     if keyboard.left:
@@ -78,6 +93,21 @@ def update():
         holdingRight = False
     ### end of keyboard handling ###
 
+    for prop in props:
+        prop.y += 4
+        if prop.colliderect(gerrit):
+            score += 1
+            props.remove(prop)
+        elif prop.y > HEIGHT  + prop.height:
+            props.remove(prop)
+
+        for prop1 in props:
+            if prop1 == prop:
+                continue
+            if prop.colliderect(prop1):
+                props.remove(prop)
+            #elif int(prop.y) in range(int(prop1.y) + int(prop1.height), int(prop1.y) - int(prop1.height)):
+             #   props.remove(prop)
 
     background.y += 4
     background1.y += 4
@@ -85,6 +115,15 @@ def update():
         background.y = HEIGHT / 2 - HEIGHT
     if background1.y == HEIGHT + HEIGHT / 2:
         background1.y = HEIGHT / 2 - HEIGHT
+
+    randomint = round(rnd.random() * 10)
+    # print(randomint.__str__())
+    if randomint == 10:
+        newprop = Actor("chicken")
+        newprop.y = -100
+        newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+        newprop.scale = 5
+        props.append(newprop)
 
 
     if not lastUpdate > float(time.time()) - 0.05: # update gerrit less frequent
@@ -103,11 +142,11 @@ def update():
                 walkStage = 1
 
             if walkingLane == 0:
-                gerrit.x = 170
+                gerrit.x = walkingLane1pos
             elif walkingLane == 1:
-                gerrit.x = 300
+                gerrit.x = walkingLane2pos
             elif walkingLane == 2:
-                gerrit.x = 430
+                gerrit.x = walkingLane3pos
 
         lastUpdate = time.time()
 
@@ -117,6 +156,8 @@ def draw():
 
     background.draw()
     background1.draw()
+    for prop in props:
+        prop.draw()
 
     if startMenu:
         screen.fill((103, 190, 217))
