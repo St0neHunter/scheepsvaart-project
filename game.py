@@ -10,7 +10,7 @@ import numpy.random as rnd
 startMenu = True
 tutorial = False
 win = False
-caught = False
+lose = False
 lastUpdate = float(time.time())
 
 WIDTH = 600
@@ -81,7 +81,7 @@ holdingLeft = False
 holdingRight = False
 
 def update():
-    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homescreenanimation, win
+    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homescreenanimation, win, lose
 
     if startMenu:
         if not lastUpdate > float(time.time()) - 0.15:
@@ -95,6 +95,9 @@ def update():
 
     if score >= goal:
         win = True
+        return
+    elif score <= -10:
+        lose = True
         return
 
     ### start of keyboard handling ###
@@ -129,6 +132,9 @@ def update():
 
     for prop in props:
         prop.y += 4
+        if prop.y > HEIGHT + prop.height:
+            props.remove(prop)
+            continue
         if prop.colliderect(gerrit):
             if prop.image == 'chicken':
                 score += 5
@@ -136,11 +142,16 @@ def update():
                 score += 2
             elif prop.image == 'scheepsbeschuit':
                 score += 1
+            elif prop.image == "crate":
+                lose = True
+                continue
             props.remove(prop)
         elif prop.y > HEIGHT  + prop.height:
             props.remove(prop)
 
         for prop1 in props:
+            if prop1.image == "crate" or prop.image == "crate":
+                continue
             if prop1 == prop:
                 continue
             if prop.colliderect(prop1):
@@ -175,7 +186,13 @@ def update():
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
             newprop.scale = 5
             props.append(newprop)
-        elif hurtTime == 3:
+        elif random.randint(0, 50) == 1:
+            newprop = Actor("crate")
+            newprop.y = -100
+            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.scale = 8
+            props.append(newprop)
+        if hurtTime == 3:
             hurtTime = 0
         elif hurtTime > 0:
             hurtTime += 1
@@ -200,7 +217,7 @@ def update():
 
 
 def draw():
-    global score, goal, caught, win
+    global score, goal, lose, win
 
     background.draw()
     background1.draw()
@@ -235,7 +252,7 @@ def draw():
             fontsize=30
         )
         return
-    if startMenu:
+    elif startMenu:
         screen.fill((103, 190, 217))
         homescreenbackground.draw()
         screen.draw.text(
@@ -251,7 +268,19 @@ def draw():
     elif win:
         screen.draw.text(
             'You won!',
-            (450, 200),
+            center=(WIDTH / 2, HEIGHT / 2),
+            color=(255, 255, 255),
+            fontsize=60
+        )
+        screen.draw.text(
+            'Score: ' + str(score) + '/' + goal.__str__(),
+            (15, 10), color=(255, 255, 255),
+            fontsize=30
+        )
+    elif lose:
+        screen.draw.text(
+            'You lost!',
+            center=(WIDTH / 2, HEIGHT / 2),
             color=(255, 255, 255),
             fontsize=60
         )
