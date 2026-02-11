@@ -15,6 +15,7 @@ lastUpdate = float(time.time())
 
 WIDTH = 600
 HEIGHT = 600
+TITLE = "Gerrit"
 
 startButton = Actor('startbutton')
 startButton.x = WIDTH / 2 + 210
@@ -56,6 +57,7 @@ walkingLane = 0
 hurtTime = 0
 
 score = 0
+warningsleft = 1
 goal = 50
 
 walkingLane1pos = 170
@@ -81,7 +83,7 @@ holdingLeft = False
 holdingRight = False
 
 def update():
-    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homescreenanimation, win, lose
+    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homescreenanimation, win, lose, warningsleft
 
     if startMenu:
         if not lastUpdate > float(time.time()) - 0.15:
@@ -91,6 +93,8 @@ def update():
                 homescreenanimation = 0
             homescreenanimation += 1
             lastUpdate = time.time()
+        return
+    if lose or win:
         return
 
     if score >= goal:
@@ -131,7 +135,7 @@ def update():
     ### end of keyboard handling ###
 
     for prop in props:
-        prop.y += 4
+        prop.y += 5
         if prop.y > HEIGHT + prop.height:
             props.remove(prop)
             continue
@@ -150,8 +154,8 @@ def update():
             props.remove(prop)
 
         for prop1 in props:
-            if prop1.image == "crate" or prop.image == "crate":
-                continue
+            # if prop1.image == "crate" or prop.image == "crate":
+            #     continue
             if prop1 == prop:
                 continue
             if prop.colliderect(prop1):
@@ -159,8 +163,8 @@ def update():
             #elif int(prop.y) in range(int(prop1.y) + int(prop1.height), int(prop1.y) - int(prop1.height)):
             #    props.remove(prop)
 
-    background.y += 4
-    background1.y += 4
+    background.y += 5
+    background1.y += 5
     if background.y == HEIGHT + HEIGHT / 2:
         background.y = HEIGHT / 2 - HEIGHT
     if background1.y == HEIGHT + HEIGHT / 2:
@@ -170,19 +174,19 @@ def update():
     if not lastUpdate > float(time.time()) - 0.05: # main game loop runs less frequent
         if random.randint(0, 200) == 1:
             newprop = Actor("chicken")
-            newprop.y = -100
+            newprop.y = -200
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
             newprop.scale = 5
             props.append(newprop)
         elif random.randint(0, 125) == 1:
             newprop = Actor("porridge")
-            newprop.y = -100
+            newprop.y = -200
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
             newprop.scale = 5
             props.append(newprop)
         elif random.randint(0, 75) == 1:
             newprop = Actor("scheepsbeschuit")
-            newprop.y = -100
+            newprop.y = -200
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
             newprop.scale = 5
             props.append(newprop)
@@ -190,7 +194,7 @@ def update():
             newprop = Actor("crate")
             newprop.y = -100
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
-            newprop.scale = 8
+            newprop.scale = 6.5
             props.append(newprop)
         if hurtTime == 3:
             hurtTime = 0
@@ -230,12 +234,12 @@ def draw():
             'In this game you play as Gerrit, a crewmate.\n'
             'To survive he needs to eat, but that\'s not easy...\n'
             '\n'
-            'There is three types of food Gerrit can find and eat on the ship\n'
+            'There is three types of food Gerrit can find and eat:\n'
             'ship\'s biscuit: 1 point\n'
             'porridge: 2 point\'s\n'
             'chicken: 5 points BUT this food is not ment for crewmates.\n'
-            'There is a 50% change of Gerrit being caught and losing a warning\n'
-            'and the second time being thrown off the ship.\n',
+            'There is a 50% change of Gerrit being caught and losing a\n'
+            'warning and the second time being thrown off the ship.\n',
             (20, 120),
             color=(0, 0, 0),
             fontsize=30
@@ -289,6 +293,11 @@ def draw():
         screen.draw.text(
             'Score: ' + str(score) + '/' + goal.__str__(),
             (15, 10), color=(255, 255, 255),
+            fontsize=30
+        )
+        screen.draw.text(
+            'Warnings left: ' + str(warningsleft),
+            (15, 30), color=(255, 255, 255),
             fontsize=30
         )
 
