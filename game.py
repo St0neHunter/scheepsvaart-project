@@ -4,8 +4,6 @@ import time
 import pgzero.game
 import pgzrun
 from pgzhelper import *
-import secrets
-import numpy.random as rnd
 
 startMenu = True
 tutorial = False
@@ -260,7 +258,7 @@ def draw():
         screen.fill((103, 190, 217))
         homescreenbackground.draw()
         screen.draw.text(
-            'Welcome!',
+            'Ship Runner',
             (210, 190),
             color=(0, 0, 0),
             fontsize=60
