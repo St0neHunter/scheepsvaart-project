@@ -30,21 +30,26 @@ quitButton.x = WIDTH / 2 + 210
 quitButton.y = HEIGHT / 2 + 160
 quitButton.scale = 5
 
-background = Actor('background')
-background.x = WIDTH / 2
-background.y = HEIGHT / 2
-background.scale = 18.75
+backButton = Actor('gemred')
+backButton.x = WIDTH / 2 + 210
+backButton.y = HEIGHT / 2 + 160
+backButton.scale = 5
 
-background1 = Actor('background')
-background1.x = WIDTH / 2
-background1.y = HEIGHT / 2 - HEIGHT
-background1.scale = 18.75
+backGround = Actor('background')
+backGround.x = WIDTH / 2
+backGround.y = HEIGHT / 2
+backGround.scale = 18.75
 
-homescreenbackground = Actor('homescreen0')
-homescreenbackground.x = WIDTH / 2
-homescreenbackground.y = HEIGHT / 2
-homescreenbackground.scale = 12
-homescreenanimation = 0
+backGround1 = Actor('background')
+backGround1.x = WIDTH / 2
+backGround1.y = HEIGHT / 2 - HEIGHT
+backGround1.scale = 18.75
+
+homeScreenBackground = Actor('homescreen0')
+homeScreenBackground.x = WIDTH / 2
+homeScreenBackground.y = HEIGHT / 2
+homeScreenBackground.scale = 12
+homeScreenAnimation = 0
 
 gerrit = Actor('standing')
 gerrit.x = 400
@@ -58,41 +63,52 @@ jumpTime = 0
 cooldown = 0
 
 score = 0
-warningsleft = 1
+warningsLeft = 1
 goal = 20
 
-walkingLane1pos = 170
-walkingLane2pos = 300
-walkingLane3pos = 430
+walkingLane1X = 170
+walkingLane2X = 300
+walkingLane3X = 430
 
-dummyprop = Actor("chicken")
-dummyprop.x = -100
-props = [dummyprop]
+dummyProp = Actor("chicken")
+dummyProp.x = -100
+props = [dummyProp]
 
 random.seed(time.time())
 
 def on_mouse_down(pos, button):
-    global startMenu, startButton, tutorialButton, tutorial
+    global startMenu, startButton, tutorialButton, tutorial, score, props, warningsLeft, jump, jumpTime, cooldown, lose, win, hurtTime
     if startButton.collidepoint(pos) and startMenu:
         startMenu = False
-    elif tutorialButton.collidepoint(pos):
+    elif tutorialButton.collidepoint(pos) and startMenu:
         tutorial = not tutorial
-    elif quitButton.collidepoint(pos):
+    elif quitButton.collidepoint(pos) and startMenu:
         pgzero.game.exit()
+    elif backButton.collidepoint(pos):
+        score = 0
+        startMenu = True
+        props.clear()
+        warningsLeft = 1
+        jump = False
+        jumpTime = 0
+        cooldown = 0
+        lose = False
+        win = False
+        hurtTime = 0
 
 holdingLeft = False
 holdingRight = False
 
 def update():
-    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homescreenanimation, win, lose, warningsleft, jump, jumpTime, cooldown
+    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homeScreenAnimation, win, lose, warningsLeft, jump, jumpTime, cooldown
 
     if startMenu:
         if not lastUpdate > float(time.time()) - 0.15:
-            homescreenbackground.image = 'homescreen' + homescreenanimation.__str__()
-            homescreenbackground.scale = 12
-            if homescreenanimation == 19:
-                homescreenanimation = 0
-            homescreenanimation += 1
+            homeScreenBackground.image = 'homescreen' + homeScreenAnimation.__str__()
+            homeScreenBackground.scale = 12
+            if homeScreenAnimation == 19:
+                homeScreenAnimation = 0
+            homeScreenAnimation += 1
             lastUpdate = time.time()
         return
     if lose or win:
@@ -104,7 +120,7 @@ def update():
     elif score <= -10:
         lose = True
         return
-    elif warningsleft < 0:
+    elif warningsLeft < 0:
         lose = True
         return
 
@@ -153,7 +169,7 @@ def update():
                 if random.randint(1, 2) == 1:
                     score += 5
                 else:
-                    warningsleft -= 1
+                    warningsLeft -= 1
             elif prop.image == 'porridge':
                 score += 2
             elif prop.image == 'scheepsbeschuit':
@@ -172,58 +188,54 @@ def update():
             props.remove(prop)
 
         for prop1 in props:
-            # if prop1.image == "crate" or prop.image == "crate":
-            #     continue
             if prop1 == prop:
                 continue
             if prop.colliderect(prop1):
                 props.remove(prop)
-            #elif int(prop.y) in range(int(prop1.y) + int(prop1.height), int(prop1.y) - int(prop1.height)):
-            #    props.remove(prop)
 
-    background.y += 5
-    background1.y += 5
-    if background.y == HEIGHT + HEIGHT / 2:
-        background.y = HEIGHT / 2 - HEIGHT
-    if background1.y == HEIGHT + HEIGHT / 2:
-        background1.y = HEIGHT / 2 - HEIGHT
+    backGround.y += 5
+    backGround1.y += 5
+    if backGround.y == HEIGHT + HEIGHT / 2:
+        backGround.y = HEIGHT / 2 - HEIGHT
+    if backGround1.y == HEIGHT + HEIGHT / 2:
+        backGround1.y = HEIGHT / 2 - HEIGHT
 
 
     if not lastUpdate > float(time.time()) - 0.05: # main game loop runs less frequent
         if random.randint(0, 200) == 1:
             newprop = Actor("chicken")
             newprop.y = -200
-            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.x = random.choice([walkingLane1X, walkingLane2X, walkingLane3X])
             newprop.scale = 5
             props.append(newprop)
         elif random.randint(0, 150) == 1:
             newprop = Actor("porridge")
             newprop.y = -200
-            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.x = random.choice([walkingLane1X, walkingLane2X, walkingLane3X])
             newprop.scale = 5
             props.append(newprop)
         elif random.randint(0, 75) == 1:
             newprop = Actor("scheepsbeschuit")
             newprop.y = -200
-            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.x = random.choice([walkingLane1X, walkingLane2X, walkingLane3X])
             newprop.scale = 5
             props.append(newprop)
         elif random.randint(0, 150) == 1:
             newprop = Actor("crate")
             newprop.y = -200
-            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.x = random.choice([walkingLane1X, walkingLane2X, walkingLane3X])
             newprop.scale = 4.5
             props.append(newprop)
         elif random.randint(0, 120) == 1:
             newprop = Actor("cow")
             newprop.y = -200
-            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.x = random.choice([walkingLane1X, walkingLane2X, walkingLane3X])
             newprop.scale = 6.5
             props.append(newprop)
         elif random.randint(0, 100) == 1:
             newprop = Actor("barrel")
             newprop.y = -200
-            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.x = random.choice([walkingLane1X, walkingLane2X, walkingLane3X])
             newprop.scale = 6.5
             props.append(newprop)
         if hurtTime == 3:
@@ -252,11 +264,11 @@ def update():
                     walkStage = 1
 
             if walkingLane == 0:
-                gerrit.x = walkingLane1pos
+                gerrit.x = walkingLane1X
             elif walkingLane == 1:
-                gerrit.x = walkingLane2pos
+                gerrit.x = walkingLane2X
             elif walkingLane == 2:
-                gerrit.x = walkingLane3pos
+                gerrit.x = walkingLane3X
 
         lastUpdate = time.time()
 
@@ -264,8 +276,8 @@ def update():
 def draw():
     global score, goal, lose, win
 
-    background.draw()
-    background1.draw()
+    backGround.draw()
+    backGround1.draw()
     for prop in props:
         prop.draw()
 
@@ -300,7 +312,7 @@ def draw():
         return
     elif startMenu:
         screen.fill((103, 190, 217))
-        homescreenbackground.draw()
+        homeScreenBackground.draw()
         screen.draw.text(
             'Ship Runner',
             (180, 160),
@@ -315,7 +327,7 @@ def draw():
         screen.draw.text(
             'You won!',
             center=(WIDTH / 2, HEIGHT / 2),
-            color=(255, 255, 255),
+            color=(0, 255, 0),
             fontsize=60
         )
         screen.draw.text(
@@ -323,13 +335,15 @@ def draw():
             (15, 10), color=(255, 255, 255),
             fontsize=30
         )
+        backButton.draw()
     elif lose:
         screen.draw.text(
             'You lost!',
             center=(WIDTH / 2, HEIGHT / 2),
-            color=(255, 255, 255),
+            color=(255, 0, 0),
             fontsize=60
         )
+        backButton.draw()
     else:
         gerrit.draw()
         screen.draw.text(
@@ -338,7 +352,7 @@ def draw():
             fontsize=30
         )
         screen.draw.text(
-            'Warnings left: ' + str(warningsleft),
+            'Warnings left: ' + str(warningsLeft),
             (15, 30), color=(255, 255, 255),
             fontsize=30
         )
