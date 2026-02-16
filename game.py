@@ -104,6 +104,9 @@ def update():
     elif score <= -10:
         lose = True
         return
+    elif warningsleft < 0:
+        lose = True
+        return
 
     ### start of keyboard handling ###
     if keyboard.left:
