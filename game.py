@@ -259,7 +259,7 @@ def draw():
         homescreenbackground.draw()
         screen.draw.text(
             'Ship Runner',
-            (210, 190),
+            (180, 160),
             color=(0, 0, 0),
             fontsize=60
         )
