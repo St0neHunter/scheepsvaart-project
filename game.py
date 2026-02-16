@@ -13,7 +13,7 @@ lastUpdate = float(time.time())
 
 WIDTH = 600
 HEIGHT = 600
-TITLE = "Gerrit"
+TITLE = "67"
 
 startButton = Actor('startbutton')
 startButton.x = WIDTH / 2 + 210
