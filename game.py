@@ -53,6 +53,9 @@ gerrit.scale = 5
 walkStage = 0
 walkingLane = 0
 hurtTime = 0
+jump = False
+jumpTime = 0
+cooldown = 0
 
 score = 0
 warningsleft = 1
@@ -81,7 +84,7 @@ holdingLeft = False
 holdingRight = False
 
 def update():
-    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homescreenanimation, win, lose, warningsleft
+    global gerrit, walkStage, lastUpdate, score, goal, walkingLane, holdingLeft, holdingRight, hurtTime, homescreenanimation, win, lose, warningsleft, jump, jumpTime, cooldown
 
     if startMenu:
         if not lastUpdate > float(time.time()) - 0.15:
@@ -130,6 +133,11 @@ def update():
                 walkingLane += 1
     elif holdingRight: # keyboard.right == false
         holdingRight = False
+
+    if keyboard.up:
+        if cooldown == 0 and jumpTime == 0:
+            jump = True
+
     ### end of keyboard handling ###
 
     for prop in props:
@@ -137,14 +145,23 @@ def update():
         if prop.y > HEIGHT + prop.height:
             props.remove(prop)
             continue
-        if prop.colliderect(gerrit):
+        if prop.colliderect(gerrit) and not jump:
             if prop.image == 'chicken':
-                score += 5
+                if random.randint(1, 2) == 1:
+                    score += 5
+                else:
+                    warningsleft -= 1
             elif prop.image == 'porridge':
                 score += 2
             elif prop.image == 'scheepsbeschuit':
                 score += 1
             elif prop.image == "crate":
+                lose = True
+                continue
+            elif prop.image == "cow":
+                lose = True
+                continue
+            elif prop.image == "barrel":
                 lose = True
                 continue
             props.remove(prop)
@@ -176,7 +193,7 @@ def update():
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
             newprop.scale = 5
             props.append(newprop)
-        elif random.randint(0, 125) == 1:
+        elif random.randint(0, 150) == 1:
             newprop = Actor("porridge")
             newprop.y = -200
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
@@ -188,9 +205,21 @@ def update():
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
             newprop.scale = 5
             props.append(newprop)
-        elif random.randint(0, 50) == 1:
+        elif random.randint(0, 150) == 1:
             newprop = Actor("crate")
-            newprop.y = -100
+            newprop.y = -200
+            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.scale = 4.5
+            props.append(newprop)
+        elif random.randint(0, 120) == 1:
+            newprop = Actor("cow")
+            newprop.y = -200
+            newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
+            newprop.scale = 6.5
+            props.append(newprop)
+        elif random.randint(0, 100) == 1:
+            newprop = Actor("barrel")
+            newprop.y = -200
             newprop.x = random.choice([walkingLane1pos, walkingLane2pos, walkingLane3pos])
             newprop.scale = 6.5
             props.append(newprop)
@@ -199,14 +228,25 @@ def update():
         elif hurtTime > 0:
             hurtTime += 1
         else:
-            if not walkStage == 8:
-                gerrit.image = 'walk' + walkStage.__str__()
-                gerrit.scale = 5
-                walkStage += 1
+            if jump:
+                jumpTime += 1
+                gerrit.image = 'jump'
+                gerrit.scale = 7
+                if jumpTime == 25:
+                    jump = False
+                    jumpTime = 0
+                    cooldown = 10
             else:
-                gerrit.image = 'walk0'
-                gerrit.scale = 5
-                walkStage = 1
+                if not cooldown == 0:
+                    cooldown -= 1
+                if not walkStage == 8:
+                    gerrit.image = 'walk' + walkStage.__str__()
+                    gerrit.scale = 5
+                    walkStage += 1
+                else:
+                    gerrit.image = 'walk0'
+                    gerrit.scale = 5
+                    walkStage = 1
 
             if walkingLane == 0:
                 gerrit.x = walkingLane1pos
@@ -232,7 +272,8 @@ def draw():
             'In this game you play as Gerrit, a crewmate.\n'
             'To survive he needs to eat, but that\'s not easy...\n'
             '\n'
-            'There is three types of food Gerrit can find and eat:\n'
+            'There is 3 types of food Gerrit can find and eat:\n'
+            '\n'
             'ship\'s biscuit: 1 point\n'
             'porridge: 2 point\'s\n'
             'chicken: 5 points BUT this food is not ment for crewmates.\n'
