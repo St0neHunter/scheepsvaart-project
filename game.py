@@ -59,7 +59,7 @@ cooldown = 0
 
 score = 0
 warningsleft = 1
-goal = 50
+goal = 20
 
 walkingLane1pos = 170
 walkingLane2pos = 300
