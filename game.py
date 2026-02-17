@@ -30,7 +30,7 @@ quitButton.x = WIDTH / 2 + 210
 quitButton.y = HEIGHT / 2 + 160
 quitButton.scale = 5
 
-backButton = Actor('gemred')
+backButton = Actor('backbutton')
 backButton.x = WIDTH / 2 + 210
 backButton.y = HEIGHT / 2 + 160
 backButton.scale = 5
@@ -156,7 +156,6 @@ def update():
     if keyboard.up:
         if cooldown == 0 and jumpTime == 0:
             jump = True
-
     ### end of keyboard handling ###
 
     for prop in props:
@@ -325,7 +324,7 @@ def draw():
 
     elif win:
         screen.draw.text(
-            'You won!',
+            'You survived the journey!',
             center=(WIDTH / 2, HEIGHT / 2),
             color=(0, 255, 0),
             fontsize=60
@@ -338,7 +337,7 @@ def draw():
         backButton.draw()
     elif lose:
         screen.draw.text(
-            'You lost!',
+            'You lost',
             center=(WIDTH / 2, HEIGHT / 2),
             color=(255, 0, 0),
             fontsize=60
