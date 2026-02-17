@@ -224,7 +224,7 @@ def update():
             newprop = Actor("crate")
             newprop.y = -200
             newprop.x = random.choice([walkingLane1X, walkingLane2X, walkingLane3X])
-            newprop.scale = 4.5
+            newprop.scale = 4
             props.append(newprop)
         elif random.randint(0, 120) == 1:
             newprop = Actor("cow")
